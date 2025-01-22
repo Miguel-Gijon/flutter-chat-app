@@ -1,5 +1,7 @@
 import 'package:chat/models/user.dart';
+import 'package:chat/services/blocs/auth_service/auth_service_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class UsuariosPage extends StatefulWidget {
@@ -13,6 +15,8 @@ class UsuariosPage extends StatefulWidget {
     User(uid: '3', name: 'Fernando', email: 'test3@test.com', online: true),
   ];
 
+  UsuariosPage({super.key});
+
   @override
   State<UsuariosPage> createState() => _UsuariosPageState();
 }
@@ -20,32 +24,46 @@ class UsuariosPage extends StatefulWidget {
 class _UsuariosPageState extends State<UsuariosPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-            title:
-                const Text('My Name', style: TextStyle(color: Colors.black87)),
-            elevation: 1,
-            backgroundColor: Colors.white,
-            leading: IconButton(
-                icon: const Icon(Icons.exit_to_app, color: Colors.black87),
-                onPressed: () {}),
-            actions: [
-              Container(
-                margin: const EdgeInsets.only(right: 10),
-                child: Icon(Icons.check_circle, color: Colors.blue[400]),
-                //child: Icon(Icons.offline_bolt, color: Colors.red),
-              )
-            ]),
-        body: SmartRefresher(
-          controller: widget._refreshController,
-          enablePullDown: true,
-          onRefresh: _loadUsers,
-          header: WaterDropHeader(
-            complete: Icon(Icons.check, color: Colors.blue[400]),
-            waterDropColor: Colors.blue[400] ?? Colors.blue,
-          ),
-          child: _listViewUsers())
-          );
+
+    final authServiceBloc = context.watch<AuthServiceBloc>();
+
+    return BlocListener<AuthServiceBloc, AuthServiceState>(
+      listener: (context, state) {
+        if (!state.authenticated) {
+          Navigator.pushReplacementNamed(context, 'login');
+        }
+      },
+      child: Scaffold(
+          appBar: AppBar(
+              title:
+                  Text(authServiceBloc.state.user?.name ?? 'Name', 
+                  style: const TextStyle(color: Colors.black87)),
+              elevation: 1,
+              backgroundColor: Colors.white,
+              leading: IconButton(
+                  icon: const Icon(Icons.exit_to_app, color: Colors.black87),
+                  onPressed: () {
+                    print('Usuario registrado: ${authServiceBloc.state.user?.name}');
+                    context.read<AuthServiceBloc>().add(LogoutEvent());
+                  }),
+              actions: [
+                Container(
+                  margin: const EdgeInsets.only(right: 10),
+                  child: Icon(Icons.check_circle, color: Colors.blue[400]),
+                  //child: Icon(Icons.offline_bolt, color: Colors.red),
+                )
+              ]),
+          body: SmartRefresher(
+            controller: widget._refreshController,
+            enablePullDown: true,
+            onRefresh: _loadUsers,
+            header: WaterDropHeader(
+              complete: Icon(Icons.check, color: Colors.blue[400]),
+              waterDropColor: Colors.blue[400] ?? Colors.blue,
+            ),
+            child: _listViewUsers())
+            ),
+    );
   }
 
   ListView _listViewUsers() {
