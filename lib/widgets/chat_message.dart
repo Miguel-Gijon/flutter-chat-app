@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
+enum MessageType { mine, notMine }
+
 class ChatMessage extends StatelessWidget {
+  final MessageType type;
   final String texto;
   final String uid;
   final AnimationController animationController;
@@ -9,7 +12,8 @@ class ChatMessage extends StatelessWidget {
     super.key, 
     required this.texto, 
     required this.uid, 
-    required this.animationController
+    required this.animationController,
+    required this.type
     });
 
   @override
@@ -22,7 +26,7 @@ class ChatMessage extends StatelessWidget {
           curve: Curves.easeOut
           ),
         child: Container(
-          child: uid == '123' ? _myMessage() : _notMyMessage(),
+          child: type == MessageType.mine ? _myMessage() : _notMyMessage(),
         ),
       ),
     );

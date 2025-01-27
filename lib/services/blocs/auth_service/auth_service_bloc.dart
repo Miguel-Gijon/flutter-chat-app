@@ -54,9 +54,9 @@ class AuthServiceBloc extends Bloc<AuthServiceEvent, AuthServiceState> {
 
     if (response.statusCode == 200) {
       final loginResponse = loginResponseFromJson(response.body);
+      await _saveToken(loginResponse.token);
       emit(state.copyWith(user: loginResponse.user, authenticating: false, authenticated: true));
       emit(state.resetError());
-      await _saveToken(loginResponse.token);
     } else {
       emit(state.copyWith(
           error: CustomError(message: response.body), authenticating: false));

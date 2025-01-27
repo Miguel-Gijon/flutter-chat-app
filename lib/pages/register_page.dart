@@ -1,11 +1,13 @@
 import 'package:chat/helpers/show_alert.dart';
 import 'package:chat/services/blocs/auth_service/auth_service_bloc.dart';
+import 'package:chat/services/blocs/socket_service/socket_service_bloc.dart';
 import 'package:chat/widgets/blue_button.dart';
 import 'package:chat/widgets/labels.dart';
 import 'package:chat/widgets/logo.dart';
 import 'package:chat/widgets/custom_input.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:socket_io_client/socket_io_client.dart';
 
 class RegisterPage extends StatelessWidget {
   @override
@@ -57,6 +59,9 @@ class __FormState extends State<_Form> {
     }
 
     void registerCompleted() {
+      context.read<SocketServiceBloc>().add(SocketServiceConnectEvent(
+        AuthServiceBloc.getToken(),
+      ));
       Navigator.pushReplacementNamed(context, 'users');
     }
 

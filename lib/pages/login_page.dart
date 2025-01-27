@@ -1,7 +1,6 @@
-import 'dart:async';
-
 import 'package:chat/helpers/show_alert.dart';
 import 'package:chat/services/blocs/auth_service/auth_service_bloc.dart';
+import 'package:chat/services/blocs/socket_service/socket_service_bloc.dart';
 import 'package:chat/widgets/blue_button.dart';
 import 'package:chat/widgets/labels.dart';
 import 'package:chat/widgets/logo.dart';
@@ -59,6 +58,9 @@ class __FormState extends State<_Form> {
     return BlocListener<AuthServiceBloc, AuthServiceState>(
       listener: (context, state) {
         if (state.user != null) {
+          context.read<SocketServiceBloc>().add(SocketServiceConnectEvent(
+            AuthServiceBloc.getToken(),
+          ));
           Navigator.pushReplacementNamed(context, 'users');
           return;
         }
